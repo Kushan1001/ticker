@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] =  '/opt/render/project/src/service_account.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] =  '/etc/secrets/service_account.json'
 
 app = Flask(__name__)
 
