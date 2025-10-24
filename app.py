@@ -6,6 +6,7 @@ from google.analytics.data_v1beta.types import (
     Metric
 )
 from flask import Flask, jsonify
+from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 
@@ -14,6 +15,8 @@ load_dotenv()
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] =  '/etc/secrets/service_account.json'
 
 app = Flask(__name__)
+
+CORS(app)
 
 def ga4_user_summary(property_id="YOUR-GA4-PROPERTY-ID"):
     client = BetaAnalyticsDataClient()
