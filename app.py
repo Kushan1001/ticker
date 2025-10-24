@@ -51,6 +51,6 @@ def ga4_user_summary(property_id="YOUR-GA4-PROPERTY-ID"):
 @app.get('/ticker_count')
 def ticker_count():
     # summary = ga4_user_summary('509714378')
-    summary = {'total_user' : '16400000'}
+    summary = {'total_users' : '16400000'}
     return jsonify(summary), 200
 
