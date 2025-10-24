@@ -2,3 +2,4 @@ flask
 google-analytics-data
 python-dotenv
 gunicorn
+flask-cors
