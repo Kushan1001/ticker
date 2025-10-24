@@ -33,6 +33,7 @@ def ga4_user_summary(property_id="YOUR-GA4-PROPERTY-ID"):
     lifetime_response = client.run_report(lifetime_request)
 
     total_users = lifetime_response.rows[0].metric_values[0].value
+    total_users = 16400000 + total_users
     active_users = lifetime_response.rows[0].metric_values[1].value
     new_users = lifetime_response.rows[0].metric_values[2].value
 
@@ -50,7 +51,6 @@ def ga4_user_summary(property_id="YOUR-GA4-PROPERTY-ID"):
 
 @app.get('/ticker_count')
 def ticker_count():
-    # summary = ga4_user_summary('509714378')
-    summary = {'total_users' : '16400000'}
+    summary = ga4_user_summary('509714378')
     return jsonify(summary), 200
 
