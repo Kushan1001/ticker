@@ -33,8 +33,8 @@ def ga4_user_summary(property_id="YOUR-GA4-PROPERTY-ID"):
     lifetime_response = client.run_report(lifetime_request)
 
     total_users = lifetime_response.rows[0].metric_values[0].value
-    total_users = 16400000 + int(total_users)
     active_users = lifetime_response.rows[0].metric_values[1].value
+    total_users = 16400000 + int(active_users)
     new_users = lifetime_response.rows[0].metric_values[2].value
 
     # Real-time currently active users
