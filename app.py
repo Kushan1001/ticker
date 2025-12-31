@@ -16,14 +16,17 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/etc/secrets/service_account.jso
 app = Flask(__name__)
 CORS(app)
 
-def ga4_user_summary(property_id="YOUR-GA4-PROPERTY-ID"):
+
+def ga4_user_summary(property_id):
     client = BetaAnalyticsDataClient()
 
-    # Lifetime total users
+    # -------------------------
+    # Lifetime users
+    # -------------------------
     lifetime_request = RunReportRequest(
         property=f"properties/{property_id}",
         metrics=[
-            Metric(name="totalUsers"),   # ✅ total unique users since inception
+            Metric(name="totalUsers"),
             Metric(name="activeUsers"),
             Metric(name="newUsers")
         ],
@@ -32,25 +35,39 @@ def ga4_user_summary(property_id="YOUR-GA4-PROPERTY-ID"):
 
     lifetime_response = client.run_report(lifetime_request)
 
-    total_users = lifetime_response.rows[0].metric_values[0].value
-    print('total_users', total_users)
-    active_users = lifetime_response.rows[0].metric_values[1].value
-    print('active_users', active_users)
-    total_users = 16400000 + int(active_users)
-    new_users = lifetime_response.rows[0].metric_values[2].value
+    total_users = int(lifetime_response.rows[0].metric_values[0].value)
+    active_users = int(lifetime_response.rows[0].metric_values[1].value)
+    new_users = int(lifetime_response.rows[0].metric_values[2].value)
 
+    print("total_users (GA4):", total_users)
+    print("active_users:", active_users)
 
-    # Real-time currently active users
+    # Your manual adjustment (UNCHANGED)
+    total_users = 16400000 + active_users
+
+    # -------------------------
+    # Realtime users (SAFE)
+    # -------------------------
     realtime_request = RunRealtimeReportRequest(
         property=f"properties/{property_id}",
         metrics=[Metric(name="activeUsers")]
     )
-    realtime_response = client.run_realtime_report(realtime_request)
-    current_active = realtime_response.rows[0].metric_values[0].value
 
+    realtime_response = client.run_realtime_report(realtime_request)
+
+    # IMPORTANT FIX
+    if realtime_response.rows:
+        current_active = int(realtime_response.rows[0].metric_values[0].value)
+    else:
+        current_active = 0
+
+    # -------------------------
+    # Return value (UNCHANGED)
+    # -------------------------
     return {
         "total_users": total_users
     }
+
 
 @app.get('/ticker_count')
 def ticker_count():
