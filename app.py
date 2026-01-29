@@ -11,7 +11,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/etc/secrets/service_account.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/etc/secrets/service_account_moc.json'
 
 app = Flask(__name__)
 CORS(app)
@@ -43,7 +43,7 @@ def ga4_user_summary(property_id):
     print("active_users:", active_users)
 
     # Your manual adjustment (UNCHANGED)
-    total_users = 16400000 + active_users
+    total_users = 11171987 + active_users
 
     # -------------------------
     # Realtime users (SAFE)
@@ -71,6 +71,6 @@ def ga4_user_summary(property_id):
 
 @app.get('/ticker_count')
 def ticker_count():
-    summary = ga4_user_summary('509714378')
+    summary = ga4_user_summary('386796174')
     return jsonify(summary), 200
 
