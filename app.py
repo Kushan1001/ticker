@@ -16,53 +16,50 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'service_account_moc.json'
 app = Flask(__name__)
 CORS(app)
 
+# -------------------------
+# CACHE STORAGE
+# -------------------------
+last_total_users = 21171987
+
 
 def ga4_user_summary(property_id):
-    client = BetaAnalyticsDataClient()
+    global last_total_users
 
-    # -------------------------
-    # Lifetime users
-    # -------------------------
-    lifetime_request = RunReportRequest(
-        property=f"properties/{property_id}",
-        metrics=[
-            Metric(name="totalUsers"),
-            Metric(name="activeUsers"),
-            Metric(name="newUsers")
-        ],
-        date_ranges=[DateRange(start_date="2024-01-01", end_date="today")]
-    )
+    try:
+        client = BetaAnalyticsDataClient()
 
-    lifetime_response = client.run_report(lifetime_request)
+        # -------------------------
+        # Lifetime users
+        # -------------------------
+        lifetime_request = RunReportRequest(
+            property=f"properties/{property_id}",
+            metrics=[
+                Metric(name="totalUsers"),
+                Metric(name="activeUsers"),
+                Metric(name="newUsers")
+            ],
+            date_ranges=[DateRange(start_date="2024-01-01", end_date="today")]
+        )
 
-    total_users = int(lifetime_response.rows[0].metric_values[0].value)
-    active_users = int(lifetime_response.rows[0].metric_values[1].value)
-    new_users = int(lifetime_response.rows[0].metric_values[2].value)
+        lifetime_response = client.run_report(lifetime_request)
 
-    # print("total_users (GA4):", total_users)
-    # print("active_users:", active_users)
+        total_users = int(lifetime_response.rows[0].metric_values[0].value)
+        active_users = int(lifetime_response.rows[0].metric_values[1].value)
 
-    # Your manual adjustment (UNCHANGED)
-    total_users = 11171987 + active_users
+        # your manual adjustment
+        total_users = 11171987 + active_users
 
-    # -------------------------
-    # Realtime users (SAFE)
-    # -------------------------
-    realtime_request = RunRealtimeReportRequest(
-        property=f"properties/{property_id}",
-        metrics=[Metric(name="activeUsers")]
-    )
+        # SAVE latest successful value
+        last_total_users = total_users
 
-    realtime_response = client.run_realtime_report(realtime_request)
+        return {"total_users": total_users}
 
-    if realtime_response.rows:
-        current_active = int(realtime_response.rows[0].metric_values[0].value)
-    else:
-        current_active = 0
+    except Exception as e:
+        print("GA4 quota exhausted or API error:", e)
 
-    return {
-        "total_users": total_users
-    }
+        # FALLBACK → return cached value
+        return {"total_users": last_total_users}
+
 
 @app.get('/ticker_count')
 def ticker_count():
